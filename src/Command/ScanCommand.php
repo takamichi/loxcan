@@ -13,6 +13,7 @@ use Siketyan\Loxcan\UseCase\ScanUseCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -38,6 +39,12 @@ class ScanCommand extends Command
         $this
             ->addArgument('base', InputArgument::REQUIRED)
             ->addArgument('head', InputArgument::REQUIRED)
+            ->addOption(
+                'working-dir',
+                'd',
+                InputOption::VALUE_OPTIONAL,
+                'If specified, use the given directory as working directory.'
+            )
         ;
     }
 
@@ -45,7 +52,12 @@ class ScanCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $repository = new Repository(Path::fromString(getcwd()));
+        $workingDir = $input->getOption('working-dir');
+        if ($workingDir === null) {
+            $workingDir = getcwd();
+        }
+
+        $repository = new Repository(Path::fromString($workingDir));
         $base = (string) $input->getArgument('base');
         $head = (string) $input->getArgument('head');
 
